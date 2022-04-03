@@ -1,4 +1,4 @@
-import type { StateBox, Reducer } from "../types";
+import type { StateBox, Reducer } from "./types";
 import { trace, Step } from "./trace";
 import { reCreateSubTree } from "./react-dom";
 

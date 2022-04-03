@@ -1,7 +1,7 @@
 import { trace, Step } from "./trace";
 
 import { SetState } from "./types";
-import { createFunctionComponent, boxDispatcher } from "./component-state";
+import { createFunctionComponent, boxDispatcher } from "./fiber";
 
 /*
   Use JSX to define our components.
