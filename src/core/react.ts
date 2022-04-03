@@ -1,6 +1,6 @@
 import { trace, Step } from "./trace";
 
-import { SetState } from "../types";
+import { SetState } from "./types";
 import { createFunctionComponent, boxDispatcher } from "./component-state";
 
 /*

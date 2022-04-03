@@ -1,4 +1,4 @@
-import type { MicroElement } from "../types";
+import type { MicroElement } from "./types";
 import { trace, Step } from "./trace";
 import { React } from "./react";
 

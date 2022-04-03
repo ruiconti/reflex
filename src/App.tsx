@@ -1,5 +1,5 @@
 import { React } from "./core/react";
-import { MicroElement } from "./types";
+import { MicroElement } from "./core/types";
 
 const ClickButton = ({
   label,
