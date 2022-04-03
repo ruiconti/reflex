@@ -96,7 +96,6 @@ const CoreVirtualDOM = (function () {
 
   return () => ({
     mountDOM: (rootComponent: MicroElement, rootElementDOM: HTMLElement) => {
-      // RealDOMRoot = rootElementDOM;
       VDOM = rootComponent;
       const DOM = buildNodeRecursive(rootComponent);
       rootElementDOM.appendChild(DOM);

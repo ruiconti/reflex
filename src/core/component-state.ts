@@ -106,7 +106,7 @@ const createFunctionComponent = (
    *      jsxObject.props = { className: "active "}
    * whereas
    *      props = { label: "RuntimeLabelValue"
-   * If we wish to recreate this component we need to keep track of both things.
+   * If we wish to recreate this component we need to keep track of both.
    */
   const stateHooks = boxDispatcher.getBox(_id);
   const element = {
