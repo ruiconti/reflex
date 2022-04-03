@@ -126,6 +126,8 @@ const findNode = (node: MicroElement, id: number) => {
 };
 
 const parseFunctionComponent = (node: MicroElement) => {
+  // TODO: Circular dependency here, need to decouple React from
+  // this module
   return React.createElement(node.constructor, node?.functionProps ?? {});
 };
 

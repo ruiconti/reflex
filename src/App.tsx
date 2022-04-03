@@ -19,8 +19,8 @@ const ClickButton = ({
 
   return (
     <div style={{ margin: "1rem 0rem" }}>
-      {/* We still don't know how to parse onChange, only raw HTMLElement listeners 
-            which happen to have lowcased names. 
+      {/* We haven't implemented React's custom event listeners, we need to use
+          the ones DOM provides 
         @ts-ignore */}
       <button onclick={onClickHandler}>
         <span>{label}</span>
@@ -40,8 +40,8 @@ const MyNameIs = ({ setText }: { setText: (t: string) => void }) => {
   return (
     <form>
       <label>Actually, my name is: </label>
-      {/* We still don't know how to parse onChange, only raw HTMLElement listeners 
-            which happen to have lowcased names. 
+      {/* We haven't implemented React's custom event listeners, we need to use
+          the ones DOM provides 
         @ts-ignore */}
       <input onchange={(e) => setText(e.target.value)} />
     </form>
@@ -54,7 +54,9 @@ const AnotherName = () => {
     <div>
       <input
         value={anotherName}
-        /* @ts-ignore */
+        /* We haven't implemented React's custom event listeners, we need to use
+          the ones DOM provides 
+        @ts-ignore */
         oninput={(e) => setAnotherName(e.target.value)}
       />
       <span>{anotherName}</span>
