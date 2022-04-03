@@ -8,15 +8,18 @@ Current state of affairs it supports:
 
 - JSX elements (thanks, `tsc`)
 - Functional components
-- Reactivity through `useState` and broadcasted through props
+- Reactivity through `useState` and propagated through props
+- Reconciles and re-paints only the sub-tree that had state changes
 
 An example app is located at `src/App.tsx`.
 
-## Still missing
+## To-do list
 
 Biggest caveats that should be solved for the scope of this project:
 
-- Improve re-render API –– right now it relies on raw JSX parsing and execution to re-render
-- Improve the reconciler algorithm –– right now is a full tree re-render at any state change
+- [x] Improve re-render API –– right now it relies on raw JSX parsing and execution to re-render
+- [x] Improve the reconciler algorithm –– right now is a full tree re-render at any state change
+- Maintain a clear state between re-renders as to not break interactivity e.g. maintain focus state
+- Synchronize the paints with the browser
 - Support for useEffect
 - Support for useRef 

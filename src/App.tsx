@@ -1,4 +1,5 @@
-import { React } from "./core/micro-react";
+import { React } from "./core/react";
+import { MicroElement } from "./types";
 
 const ClickButton = ({
   label,
@@ -21,7 +22,9 @@ const ClickButton = ({
       {/* We still don't know how to parse onChange, only raw HTMLElement listeners 
             which happen to have lowcased names. 
         @ts-ignore */}
-      <button onclick={onClickHandler}>{label}</button>
+      <button onclick={onClickHandler}>
+        <span>{label}</span>
+      </button>
       <div>{count}</div>
     </div>
   );
@@ -33,19 +36,59 @@ const PassiveComponent = ({ name }: { name: string }) => {
   );
 };
 
-export default function App() {
+const MyNameIs = ({ setText }: { setText: (t: string) => void }) => {
+  return (
+    <form>
+      <label>Actually, my name is: </label>
+      {/* We still don't know how to parse onChange, only raw HTMLElement listeners 
+            which happen to have lowcased names. 
+        @ts-ignore */}
+      <input onchange={(e) => setText(e.target.value)} />
+    </form>
+  );
+};
+
+const AnotherName = () => {
+  const [anotherName, setAnotherName] = React.useState("birdie");
+  return (
+    <div>
+      <input
+        value={anotherName}
+        /* @ts-ignore */
+        oninput={(e) => setAnotherName(e.target.value)}
+      />
+      <span>{anotherName}</span>
+    </div>
+  );
+};
+
+export default function App(): MicroElement {
   const [text, setText] = React.useState("stranger");
 
   return (
-    <main style={{ width: "100%" }}>
+    <main style={{ width: "100%", height: "100%" }}>
       <h1>Hello, {text}!</h1>
-      <form>
-        <label>Actually, my name is: </label>
-        {/* We still don't know how to parse onChange, only raw HTMLElement listeners 
-            which happen to have lowcased names. 
-        @ts-ignore */}
-        <input onchange={(e) => setText(e.target.value)} />
-      </form>
+      <div>
+        <span>
+          <p>
+            <blockquote>This is a very</blockquote>
+            <code>
+              <em>
+                <b>
+                  <span>nested</span>
+                  <div>
+                    <div>
+                      <AnotherName />
+                    </div>
+                  </div>
+                </b>
+              </em>
+            </code>
+          </p>
+        </span>
+      </div>
+      <label>This will change the text above</label>
+      <MyNameIs setText={setText} />
       <div style={{ margin: "2em 0em" }}>
         <ClickButton label="Sum" initialValue={-2} incrementer={(c) => c + 1} />
         <ClickButton
