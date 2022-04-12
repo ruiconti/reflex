@@ -3,20 +3,47 @@ type Setter<T> = (newState: T) => void;
 type SetState<T> = Setter<T | Reducer<T>>;
 
 type StateBox<T = any> = {
-  componentId: number;
-  hookId: number;
   getState: () => T;
   setState: SetState<T>;
 };
 
-interface MicroElement extends JSX.Element {
-  _id?: number;
-  tag?: string;
-  props: object;
-  functionProps?: object;
-  children?: MicroElement[];
-  stateHooks?: StateBox[];
-  ref?: HTMLElement;
+type Fiber = {
+  // JSX attrs
+  tag?: string | Function;
+  props?: object;
+  children?: Fiber[];
+
+  // Function elements:
+  Component?: FunctionComponent;
+  initialProps?: object;
+  // Text elements:
+  text?: string; // TODO: Needs a better abstraction
+  stateElement?: HTMLElement | Text;
+  mode?: Mode;
+  // Relationships
+  child?: Fiber;
+  sibling?: Fiber;
+  parent?: Fiber;
+};
+
+type FiberMachine = {
+  current: undefined | Fiber;
+  next: undefined | Fiber;
+};
+
+enum Mode {
+  Visited = "VISITED",
+  Completed = "COMPLETED",
 }
 
-export { SetState, Reducer, StateBox, MicroElement };
+type FunctionComponent = (...props: any[]) => Fiber;
+
+export {
+  SetState,
+  Reducer,
+  StateBox,
+  Fiber,
+  FiberMachine,
+  Mode,
+  FunctionComponent,
+};
