@@ -12,8 +12,6 @@ function renderDOMTree(tree: Fiber, hostDOM: any) {
 
 commitDispatcher.setDispatcher(function commitDOMTree(initialNode: Fiber) {
   // For each tree level, we start building our render tree
-  // TODO: It's starting at ROOT; ideally, it would start at the
-  // TODO: UoW fiber that initiated the render
   const queue = [initialNode];
   trace(Step.Commit, "Initial node: ", initialNode);
 

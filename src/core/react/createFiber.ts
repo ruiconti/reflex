@@ -32,8 +32,6 @@ function createFiber(node: Fiber | string): Fiber {
 function updateChildrenReferences(node: Fiber) {
   const children = (node.children ?? []) as Fiber[];
 
-  // Node is already a Fiber though these
-  // relationships were not created yet i.e. mode is not Visited
   // Create child/parent/sibling relationships
   for (let i = 0; i < children.length; i++) {
     if (i === 0) {
@@ -62,6 +60,7 @@ function reconcileFiber(node: Fiber) {
   const { tag, props } = node;
 
   trace(Step.UpdateFiber, "Incoming: ", node);
+  // TODO: Unify the two branches below
   if (typeof tag === "function") {
     let {
       children: renderChildren,
@@ -75,6 +74,8 @@ function reconcileFiber(node: Fiber) {
     node.tag = renderTag;
     node.children = renderChildren;
     node.props = renderProps;
+    // TODO: Be smart to generate node diffs
+
     trace(Step.UpdateFiber, "Function component ", node);
   } else if (node.Component && typeof node.Component === "function") {
     node = node as Fiber;
