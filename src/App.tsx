@@ -1,5 +1,4 @@
 import { React } from "./core/react";
-import { MicroElement } from "./core/types";
 
 const ClickButton = ({
   label,
@@ -64,7 +63,7 @@ const AnotherName = () => {
   );
 };
 
-export default function App(): MicroElement {
+export default function App() {
   const [text, setText] = React.useState("stranger");
 
   return (
