@@ -1,7 +1,8 @@
-import { trace, Step } from "./trace";
+import { trace, Step } from "../trace";
 
-import { SetState } from "./types";
-import { createFunctionComponent, boxDispatcher } from "./fiber";
+import { SetState, StateBox } from "../types";
+import { scheduleFullRender } from "./fiber";
+import { createFiber } from "./createFiber";
 
 /*
   Use JSX to define our components.
@@ -23,31 +24,54 @@ import { createFunctionComponent, boxDispatcher } from "./fiber";
   It is traversed in a depth first search fashion.
 */
 function createElement(
-  tagOrFunction: string | Function,
+  tag: string | Function,
   props: object,
   ...children: any[]
 ) {
-  if (typeof tagOrFunction === "function") {
-    // This is the moment in which we are transforming our component JSX
-    // into a MicroElement
-    const componentFunction = tagOrFunction;
-    return createFunctionComponent(componentFunction, props, children);
-  }
-
-  const element = {
-    tag: tagOrFunction,
-    props,
-    children,
-  };
-  trace(Step.JSXCreateElement, "createElement(tag, props, children)", element);
-  return element;
+  return createFiber({ tag, props, children });
 }
 
+let hooks: StateBox[] = [];
+let HOOK_COUNTER = 0;
+let INITIAL_RENDER = true;
+
+const resetState = () => {
+  INITIAL_RENDER = false;
+  HOOK_COUNTER = 0;
+};
+
+const createBox = <T>(initialState: T) => {
+  const box = (function () {
+    let state = initialState;
+
+    return {
+      getState: () => state,
+      setState: (newState: T | Function) => {
+        state =
+          typeof newState === "function"
+            ? (newState as Function)(state)
+            : newState;
+
+        scheduleFullRender();
+        resetState();
+      },
+    };
+  })();
+  return box;
+};
+
 const useState = <T>(initialValue: T): [T, SetState<T>] => {
-  // I need to tag that this useState function is being called
-  // in COMPONENT_ID x.
-  const box = boxDispatcher.scheduleRegister<T>(initialValue);
-  // boxDispatcher.pushBox(box);
+  trace(Step.UseState, "Registering hook!");
+  let box;
+
+  if (!INITIAL_RENDER) {
+    box = hooks?.[HOOK_COUNTER];
+  } else {
+    box = createBox(initialValue);
+    hooks.push(box);
+  }
+  HOOK_COUNTER++;
+
   return [box.getState(), box.setState];
 };
 
@@ -56,4 +80,4 @@ const React = {
   useState,
 };
 
-export { React };
+export default React;
