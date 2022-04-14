@@ -1,8 +1,8 @@
 import { Step, trace } from "../trace";
-import { FiberMachine, Fiber, Mode } from "../types";
-import { reconcileFiber } from "./createFiber";
+import { FiberMachine, ElementMachine, Fiber, Mode } from "../types";
+import { reconcileFiber } from "./reconcileFiber";
 
-let root: FiberMachine = {
+let root: ElementMachine = {
   current: undefined,
   next: undefined,
 };
@@ -22,9 +22,18 @@ function completeUnitOfWork(node: Fiber) {
   node.mode = Mode.Completed;
 }
 
+function ensureNextRootIsLinked(currentFiber: Fiber) {
+  if (root.next === unitOfWork.next) {
+    root.next = currentFiber;
+  }
+}
+
 function executeUnitOfWork(node: Fiber) {
   trace(Step.ExecuteUoW, "Beginning!", node);
-  unitOfWork.current = reconcileFiber(node);
+
+  const nextFiber = reconcileFiber(node);
+  ensureNextRootIsLinked(nextFiber);
+  unitOfWork.current = nextFiber;
 
   if (unitOfWork.current?.child) {
     trace(Step.ExecuteUoW, "Going down.", unitOfWork.current.child);
@@ -50,7 +59,7 @@ function executeUnitOfWork(node: Fiber) {
     }
 
     if (nextNode === root.current) {
-      unitOfWork.current = root.current;
+      unitOfWork.current = root.current as Fiber;
     }
     if (nextNode === root.next) {
       unitOfWork.current = root.next;
@@ -91,13 +100,13 @@ function scheduleUnitOfWork(node?: Fiber | undefined) {
 }
 
 function scheduleFullRender() {
-  root.next = { ...root.current };
+  root.next = { ...root.current } as Fiber;
   unitOfWork.next = root.next;
   scheduleUnitOfWork(root.next);
 }
 
-function setCurrentRoot(newCurrentRoot: Fiber) {
-  root.current = newCurrentRoot;
+function setCurrentRoot(newCurrentRoot: Fiber | Element) {
+  root.current = newCurrentRoot as Fiber;
   scheduleFullRender();
 }
 
