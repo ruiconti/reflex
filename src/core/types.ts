@@ -7,23 +7,36 @@ type StateBox<T = any> = {
   setState: SetState<T>;
 };
 
-type Fiber = {
-  // JSX attrs
-  tag?: string | Function;
-  props?: object;
-  children?: Fiber[];
+enum FiberType {
+  FunctionComponent = "FunctionComponent",
+  HostComponent = "HostComponent",
+  TextNode = "TextNode",
+}
 
-  // Function elements:
-  Component?: FunctionComponent;
-  initialProps?: object;
-  // Text elements:
-  text?: string; // TODO: Needs a better abstraction
+type Element = {
+  children: Element[];
+  props: object;
+  tag: any;
+};
+
+type Fiber = {
+  child: Fiber | undefined;
+  alternate: Fiber | undefined;
+  // TODO: Smells to have children and child.
+  children: Element[];
+  parent: Fiber | undefined;
+  sibling: Fiber | undefined;
+
+  initialProps: object | undefined;
+  // TODO: Children needs to be encapsulated inside props.
+  props: object | undefined;
+
+  data: FunctionComponent | string | undefined;
+  mode: Mode;
+  tag: string | Function;
+  type: FiberType;
+
   stateElement?: HTMLElement | Text;
-  mode?: Mode;
-  // Relationships
-  child?: Fiber;
-  sibling?: Fiber;
-  parent?: Fiber;
 };
 
 type FiberMachine = {
@@ -31,7 +44,13 @@ type FiberMachine = {
   next: undefined | Fiber;
 };
 
+type ElementMachine = {
+  current: undefined | Fiber | Element;
+  next: undefined | Fiber;
+};
+
 enum Mode {
+  Created = "CREATED",
   Visited = "VISITED",
   Completed = "COMPLETED",
 }
@@ -39,11 +58,14 @@ enum Mode {
 type FunctionComponent = (...props: any[]) => Fiber;
 
 export {
-  SetState,
-  Reducer,
-  StateBox,
+  Element,
+  ElementMachine,
   Fiber,
   FiberMachine,
-  Mode,
+  FiberType,
   FunctionComponent,
+  Mode,
+  Reducer,
+  SetState,
+  StateBox,
 };
