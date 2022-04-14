@@ -1,29 +1,46 @@
-# Reflex, a tiny React
+<h2 align="center">
+Reflex, a tiny react
 
-For learning purposes, I challenged myself to write a working React version with its minimal functionalities. It wasn't an inspiration/copy of the current algorithms and decisions that are used in production React. Modus-operandi is: map API surface and behavior, implement myself here, and later contrast with production React's implementations. The idea is to slowly converge to those, as mistakes are made.
+⚛️ 🤏
+</h2>
+
+For learning purposes, I challenged myself to write a small, naive, but working react. With its core functionalities.
+
+The goal is to gradually, on my own, slowly converge to the design that is used in React's production code. Of course, with big constraints to make it feasible.
 
 ## Features 
 
-Current state of affairs it supports:
+The end goal is to provide a useful, but not optimized reactivity library.
 
-- JSX elements (thanks, `tsc`)
-- Functional components
-- Reactivity through `useState` and propagated through props
-- Reconciles and re-paints only the sub-tree that had state changes
+Currently features:
+
+- Support for JSX
+- Support for functional components
+- State and reactivity provided by `useState` hook and props propagation
+- Efficient scheduling by delegating control back to main thread on fixed intervals
+
+## Running
+
+As simple as a
+
+```sh
+yarn dev
+```
 
 An example app is located at `src/App.tsx`.
 
-## To-do list
 
-Biggest caveats that should be solved for the scope of this project:
+## Upcoming
 
-- [x] Improve re-render API –– right now it relies on raw JSX parsing and execution to re-render
-- [x] Improve the reconciler algorithm –– right now is a full tree re-render at any state change
-- [x] Refactor reconciler to allow work suspense; inspire in a Fibery approach and adopt unit of works coupled to linked lists to achieve that
-- [x] Refactor how traversal is made; right now it relies on JSX's default post-order traversal; a BFS would be much more efficient to prevent from components higher in the tree from partial evaluation
-- [] Optimize reconciler fiber diff: as of now it always creates a new fiber on every pass
-- [] Optimize commits to only happen on necessary tree branches
-- [] Maintain a clear state between re-renders as to not break interactivity e.g. maintain focus state
-- [] Synchronize the paints with the browser
-- [] Support for useEffect
-- [] Support for useRef 
+What is missing:
+
+- Efficient rendering and painting: only on the sub-tree that had state changes
+- Smart reconciliation that does work only when needed (on a Fiber's state dispatcher subtree or when props have changed; usage of alternate prop)
+- Side effects through `useEffect` hook
+- Preserve interactivity states between re-renders (active focus, navigation)
+
+Chore:
+
+- Optimize commit-traversal algorithm
+- Improve scheduler through counters (inspired by production React)
+
