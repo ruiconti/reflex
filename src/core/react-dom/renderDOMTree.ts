@@ -1,13 +1,13 @@
 import { Step, trace } from "../trace";
 import { Fiber } from "../types";
-import { setCurrentRoot, commitDispatcher } from "../react/fiber";
+import { setCurrentRoot, commitDispatcher } from "../react/workLoop";
 
 // keep the root reference alive
 let mountElement: HTMLElement | undefined;
 
-function renderDOMTree(tree: Fiber, hostDOM: any) {
+function renderDOMTree(tree: JSX.Element | Element, hostDOM: any) {
   mountElement = hostDOM;
-  setCurrentRoot({ parent: undefined, ...tree });
+  setCurrentRoot({ ...tree } as Element);
 }
 
 commitDispatcher.setDispatcher(function commitDOMTree(initialNode: Fiber) {
@@ -17,15 +17,30 @@ commitDispatcher.setDispatcher(function commitDOMTree(initialNode: Fiber) {
 
   while (queue.length > 0) {
     let currentFiber = queue.pop();
-    let children = currentFiber?.children ?? [];
-    // TODO: It's relying on 'children' to re-render;
-    // TODO: It should rely on a list of DOM event updates
-    children.forEach((child) => {
-      if (child.stateElement) {
-        currentFiber?.stateElement?.appendChild(child.stateElement);
+    let child = currentFiber?.child;
+    let currentElement = currentFiber?.stateElement;
+
+    if (child && currentElement && child.stateElement) {
+      trace(Step.Commit, "Appending child: ", child);
+      currentElement.appendChild(child.stateElement);
+      queue.push(child);
+
+      let currentSibling = child?.sibling;
+      while (currentSibling) {
+        let siblingElement = currentSibling?.stateElement;
+        if (siblingElement) {
+          currentElement.appendChild(siblingElement);
+          trace(Step.Commit, "Appending sibling: ", currentSibling);
+          if (queue.indexOf(currentSibling) === -1) {
+            queue.unshift(currentSibling);
+          } else {
+            // TODO: Figure out why we are getting here.
+          }
+        }
+        currentSibling = currentSibling?.sibling;
       }
       queue.push(child);
-    });
+    }
   }
 
   if (initialNode?.stateElement) {
