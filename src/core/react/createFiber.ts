@@ -1,100 +1,56 @@
 import { Step, trace } from "../trace";
-import { Fiber, FunctionComponent, Mode } from "../types";
+import { Element, Fiber, FiberType, Mode } from "../types";
 
-function createFiber(node: Fiber | string): Fiber {
-  let fiber;
+function resolveFiberType(node: Element): FiberType {
+  const typeMap = new Map<string, FiberType>([
+    ["function", FiberType.FunctionComponent],
+    ["string", FiberType.HostComponent],
+  ]);
+  return typeMap.get(typeof node.tag) ?? FiberType.HostComponent;
+}
+
+function createFiber(node: Element | string): Fiber {
+  let fiber: Fiber | undefined;
   switch (typeof node) {
     case "object":
+      const fiberType = resolveFiberType(node);
       fiber = {
-        ...node,
+        tag: node.tag,
+        props: node.props,
+        initialProps: node.props,
+        children: node.children,
+        type: fiberType,
+        mode: Mode.Created,
+        data: fiberType === FiberType.FunctionComponent ? node!.tag : undefined,
+        alternate: undefined,
         child: undefined,
-        sibling: undefined,
         parent: undefined,
+        sibling: undefined,
       };
+      (fiber as Fiber).alternate = { ...fiber };
       trace(Step.Fiberize, "Fiberizing an object!", fiber);
       break;
     case "string":
     case "number":
       fiber = {
-        props: {},
-        child: undefined,
-        text: node,
-        sibling: undefined,
-        parent: undefined,
+        data: node,
         tag: "TextNode",
+        type: FiberType.TextNode,
+        mode: Mode.Created,
+        initialProps: {},
+        props: {},
+        children: [],
+        alternate: undefined,
+        child: undefined,
+        parent: undefined,
+        sibling: undefined,
       };
+      (fiber as Fiber).alternate = { ...fiber };
       trace(Step.Fiberize, "Fiberizing a string", fiber);
       break;
   }
+
   return fiber;
 }
 
-function updateChildrenReferences(node: Fiber) {
-  const children = (node.children ?? []) as Fiber[];
-
-  // Create child/parent/sibling relationships
-  for (let i = 0; i < children.length; i++) {
-    if (i === 0) {
-      // Create child ref
-      children[i] = createFiber(children[i]);
-      node.child = children[i];
-    }
-
-    if (children?.[i + 1]) {
-      // Create sibling ref
-      children[i + 1] = createFiber(children[i + 1]);
-      children[i].sibling = children[i + 1];
-    }
-
-    trace(Step.CreateFiberReferences, "Creating refs for ", children[i]);
-    // Create parent ref
-    children[i].parent = node;
-  }
-  // TODO: Mode is now useless; use it to tag edited nodes
-  node.mode = Mode.Visited;
-  trace(Step.CreateFiberReferences, "End of process for ", node);
-  return node;
-}
-
-function reconcileFiber(node: Fiber) {
-  const { tag, props } = node;
-
-  trace(Step.UpdateFiber, "Incoming: ", node);
-  // TODO: Unify the two branches below
-  if (typeof tag === "function") {
-    let {
-      children: renderChildren,
-      props: renderProps,
-      tag: renderTag,
-    } = tag(props);
-
-    node = node as Fiber;
-    node.initialProps = props;
-    node.Component = tag as (...props: any[]) => Fiber;
-    node.tag = renderTag;
-    node.children = renderChildren;
-    node.props = renderProps;
-    // TODO: Be smart to generate node diffs
-
-    trace(Step.UpdateFiber, "Function component ", node);
-  } else if (node.Component && typeof node.Component === "function") {
-    node = node as Fiber;
-    const Component = node.Component as FunctionComponent;
-    let {
-      children: renderChildren,
-      props: renderProps,
-      tag: renderTag,
-    } = Component({ ...node.initialProps, ...node.props });
-
-    node = node as Fiber;
-    node.tag = renderTag;
-    node.children = renderChildren;
-    node.props = renderProps;
-    trace(Step.UpdateFiber, "Re-rendering component ", node);
-  } else if (typeof tag === "string") {
-    trace(Step.UpdateFiber, "Regular component", node);
-  }
-  return updateChildrenReferences(node);
-}
-
-export { createFiber, updateChildrenReferences, reconcileFiber };
+export { createFiber };

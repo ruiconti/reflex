@@ -2,5 +2,5 @@ export {
   setCurrentRoot,
   commitDispatcher,
   createStateElementDispatcher,
-} from "./fiber";
-export { default as React } from "./react";
+} from "./workLoop";
+export { default as React } from "./createElement";

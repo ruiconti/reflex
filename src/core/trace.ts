@@ -24,9 +24,10 @@ const decodeStep = (step: Step) => {
 
 // Change this to control what's being logged
 const LogLevel =
-  // Step.CreateFiberReferences |
+  Step.CreateFiberReferences |
   // Step.UpdateFiber |
-  // Step.WorkLoop |
+  Step.WorkLoop |
+  Step.Commit |
   Step.ExecuteUoW;
 
 export const trace = (step: Step, ...msg: any[]) => {

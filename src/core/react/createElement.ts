@@ -1,8 +1,26 @@
 import { trace, Step } from "../trace";
 
 import { SetState, StateBox } from "../types";
-import { scheduleFullRender } from "./fiber";
-import { createFiber } from "./createFiber";
+import { scheduleFullRender } from "./workLoop";
+
+function createReactElement({
+  tag,
+  props,
+  children,
+}: {
+  tag: string | Function | number;
+  props: any;
+  children: Array<object>;
+}) {
+  let element = {
+    type: undefined,
+    tag,
+    props,
+    children,
+  };
+
+  return element;
+}
 
 /*
   Use JSX to define our components.
@@ -28,7 +46,7 @@ function createElement(
   props: object,
   ...children: any[]
 ) {
-  return createFiber({ tag, props, children });
+  return createReactElement({ tag, props, children });
 }
 
 let hooks: StateBox[] = [];

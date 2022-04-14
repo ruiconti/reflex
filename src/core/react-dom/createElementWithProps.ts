@@ -1,6 +1,6 @@
 import { Step, trace } from "../trace";
-import { Fiber } from "../types";
-import { createStateElementDispatcher } from "../react/fiber";
+import { Fiber, FiberType } from "../types";
+import { createStateElementDispatcher } from "../react/workLoop";
 
 function setNestedObjectProp(
   element: HTMLElement,
@@ -26,9 +26,9 @@ createStateElementDispatcher.setDispatcher(function createElementWithProps(
     "[Traversing VirtualDOM] [createElementWithProps] ",
     fiber
   );
-  // On leafs, we eventually hit primitive values
-  if (fiber?.text) {
-    return document.createTextNode(String(fiber.text));
+  // On leaves, we eventually hit primitive values i.e. data
+  if (fiber.type === FiberType.TextNode && fiber?.data) {
+    return document.createTextNode(String(fiber.data));
   }
 
   const { tag, props } = fiber;
