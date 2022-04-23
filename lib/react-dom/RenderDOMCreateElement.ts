@@ -1,26 +1,38 @@
-import { Step, trace } from "../trace";
-import { Fiber, FiberType } from "../types";
-import { createStateElementDispatcher } from "../react/workLoop";
+import { Step, trace } from "../common/trace";
+import { Fiber, FiberType } from "../common/types";
+import { setElementFactory } from "../react/FiberWorkLoop";
+
+function shouldOmitProps(propertyName: string | undefined) {
+  return !propertyName || propertyName === "children";
+}
 
 function setNestedObjectProp(
   element: HTMLElement,
   prop: keyof HTMLElement,
   nestedObj: any
 ) {
+  if (shouldOmitProps(prop)) {
+    return element;
+  }
   for (let [nestedProp, nestedValue] of Object.entries(nestedObj)) {
-    if (!nestedProp || !prop) continue;
+    if (!nestedProp) continue;
 
     // [TODO]: HTMLElement type accessor
     // We will ignore object assignment type-checking for now, as TS will not accept HTMLElement[string] access
     // @ts-ignore
-    element[prop][nestedProp] = nestedValue;
+    try {
+      // @ts-ignore
+      element[prop][nestedProp] = nestedValue;
+    } catch (err) {
+      throw new Error(
+        `Invalid assignment on HTMLElement: e[${prop}][${nestedProp}]`
+      );
+    }
   }
   return element;
 }
 
-createStateElementDispatcher.setDispatcher(function createElementWithProps(
-  fiber: Fiber
-) {
+setElementFactory(function createElementWithProps(fiber: Fiber) {
   trace(
     Step.CreateElement,
     "[Traversing VirtualDOM] [createElementWithProps] ",

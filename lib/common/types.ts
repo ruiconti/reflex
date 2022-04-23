@@ -7,36 +7,49 @@ type StateBox<T = any> = {
   setState: SetState<T>;
 };
 
+type Element = {
+  tag: string | FunctionComponent;
+  children: Element[];
+  props: Props;
+  stateElement?: HTMLElement;
+};
+
+type FunctionComponent = (...props: any[]) => Element;
+
+type Props = { children?: any[] } & object;
+
+type StateElement = HTMLElement | Text;
+
 enum FiberType {
   FunctionComponent = "FunctionComponent",
   HostComponent = "HostComponent",
   TextNode = "TextNode",
 }
 
-type Element = {
-  children: Element[];
-  props: object;
-  tag: any;
-};
+enum Mode {
+  // traversal modes
+  Created = "CREATED",
+  Visited = "VISITED",
+  Completed = "COMPLETED",
+  // state modes
+  Updated = "UPDATED",
+}
 
 type Fiber = {
   child: Fiber | undefined;
   alternate: Fiber | undefined;
-  // TODO: Smells to have children and child.
-  children: Element[];
   parent: Fiber | undefined;
   sibling: Fiber | undefined;
 
-  initialProps: object | undefined;
-  // TODO: Children needs to be encapsulated inside props.
-  props: object | undefined;
+  initialProps: Props;
+  props: Props;
 
   data: FunctionComponent | string | undefined;
   mode: Mode;
   tag: string | Function;
   type: FiberType;
 
-  stateElement?: HTMLElement | Text;
+  stateElement?: StateElement;
 };
 
 type FiberMachine = {
@@ -49,14 +62,6 @@ type ElementMachine = {
   next: undefined | Fiber;
 };
 
-enum Mode {
-  Created = "CREATED",
-  Visited = "VISITED",
-  Completed = "COMPLETED",
-}
-
-type FunctionComponent = (...props: any[]) => Fiber;
-
 export {
   Element,
   ElementMachine,
@@ -68,4 +73,5 @@ export {
   Reducer,
   SetState,
   StateBox,
+  StateElement,
 };

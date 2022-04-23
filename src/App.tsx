@@ -1,4 +1,4 @@
-import { React } from "./core/react";
+import React from "../lib/react";
 
 const ClickButton = ({
   label,
